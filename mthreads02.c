@@ -17,6 +17,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
+//struct for passing thread info
 typedef struct
 {
     int number;
@@ -24,50 +25,68 @@ typedef struct
     int index;
 }Thread;
 
+//function prototype
 void *ThreadFunc(void *vptr);
 
+//begin main
 int main(int argc, char* argv[])
 {
     if(argc <= 1)
     {
-        puts("Usage: ./a.out <#primary microseconds> <thread #1 microseconds> <thread #2 microseconds>...");
+        puts("Usage: ./a.out <#primary microseconds> <thread #1 microseconds> <thread #2 microsecon$
         exit(EXIT_FAILURE);
     }
 
     int counter;
     int intOne;
+    int result;
 
-    //for the primary thread
-    sscanf(argv[1], "%d", &intOne);
+    //recieve values for primary thread and check if valid
+    result = sscanf(argv[1], "%d", &intOne);
+    if(!result)
+    {
+        puts("Argument 1 is not valid.");
+        exit(EXIT_FAILURE);
+    }
+
+    //convert to unsigned long
     unsigned long primary = intOne;
-    
+
     //if there are more threads
     int numThreads = (argc - 2);
     Thread threads[numThreads];
     int temp;
-    
+
     for(counter = 2; counter < argc; counter++)
     {
+        //retrieve input and check if valid
+        result = sscanf(argv[counter], "%d", &temp);
+        if(!result)
+        {
+            printf("Argument %d is not valid.\n", counter);
+            exit(EXIT_FAILURE);
+        }
+
+        //initialize struct members
         threads[counter].number = counter;
-        sscanf(argv[counter], "%d", &temp);
         threads[counter].seconds = temp;
         threads[counter].index = 0;
 
+        //create thread
         pthread_t tid;
         pthread_create(&tid, NULL, ThreadFunc, &threads[counter]);
     }
 
+    //begin primary thread loop
     int index = 0;
-
     for(;; index ++)
     {
         printf("Primary thread at %lu microseconds, counter = %d\n", primary, index);
         usleep(primary);
-       // pthread_join(tid, NULL);
     }
 
     return 0;
-} // end of main
+}//end of main
 
 void *ThreadFunc(void *vptr)
 {
@@ -82,4 +101,5 @@ void *ThreadFunc(void *vptr)
         usleep(seconds);
     }
 
-} //end of ThreadFunc
+}//end of ThreadFunc
+
