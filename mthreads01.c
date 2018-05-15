@@ -30,28 +30,43 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    sscanf(argv[1], "%d", &intOne);
-    sscanf(argv[2], "%d", &intTwo);
+    //take 2 int arguments and check if valid
+    auto        int             result;
+    result = sscanf(argv[1], "%d", &intOne);
+    if(!result)
+    {
+        puts("Error converting argument 1 into an integer.");
+        exit(EXIT_FAILURE);
+    }
 
+    result = sscanf(argv[2], "%d", &intTwo);
+    if(!result)
+    {
+        puts("Error converting argument 2 into an integer.");
+        exit(EXIT_FAILURE);
+    }
+
+    //convert ints to unsigned longs
     unsigned long primary;
     unsigned long secondary;
 
     primary = intOne;
     secondary = intTwo;
 
+    //create the secondary thread
     pthread_t tid;
     pthread_create(&tid, NULL, ThreadFunc, &secondary);
-    int index = 0;
 
+    //begin the primary thread loop
+    int index = 0;
     for(;; index ++)
     {
         printf("Primary thread at %lu microseconds, counter = %d\n", primary, index);
         usleep(primary);
-       // pthread_join(tid, NULL);
     }
 
     return 0;
-}
+}//end of main
 
 void *ThreadFunc(void *vptr)
 {
@@ -64,4 +79,4 @@ void *ThreadFunc(void *vptr)
         usleep(seconds);
     }
 
-}
+}//end of ThreadFunc
